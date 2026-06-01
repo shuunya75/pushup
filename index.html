@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>腕立て200</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div>
+          <p class="date" id="todayLabel"></p>
+          <h1>腕立て200</h1>
+        </div>
+        <button class="icon-button" id="resetButton" type="button" aria-label="今日の記録をリセット">
+          ↻
+        </button>
+      </header>
+
+      <section class="draw-panel" aria-live="polite">
+        <p class="eyebrow">次の種目</p>
+        <div class="current" id="currentExercise">
+          <span class="placeholder">まだ引いていません</span>
+        </div>
+        <div class="draw-total">
+          <span>合計</span>
+          <output id="drawTotalOutput">0 回</output>
+        </div>
+        <p class="notice" id="drawNotice">サイコロを振る感覚で、次の種目を決めます。</p>
+        <button class="primary-button" id="drawButton" type="button">次を引く</button>
+      </section>
+
+      <section class="settings" aria-label="抽選設定">
+        <label class="setting-row">
+          <span>
+            <strong>出た種目を候補から外す</strong>
+            <small>オンにすると同じ種目は再登場しません。</small>
+          </span>
+          <input id="excludeCompleted" type="checkbox" checked />
+        </label>
+        <label class="setting-row">
+          <span>
+            <strong>同じ種目が連続したら引き直す</strong>
+            <small>オフにすると連続も許可します。</small>
+          </span>
+          <input id="avoidRepeat" type="checkbox" checked />
+        </label>
+        <label class="setting-row">
+          <span>
+            <strong>一度出た目の確率を半分にする</strong>
+            <small>候補から外さない時の偏りを少し整えます。</small>
+          </span>
+          <input id="halveWeight" type="checkbox" checked />
+        </label>
+      </section>
+
+      <section class="progress-section" aria-label="今日の記録">
+        <div class="section-head">
+          <h2>今日の合計</h2>
+          <output id="totalOutput">0 / 200</output>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <div id="meterFill"></div>
+        </div>
+        <div class="exercise-list" id="exerciseList"></div>
+      </section>
+
+      <section class="history-section" aria-label="順番ログ">
+        <div class="section-head">
+          <h2>順番</h2>
+          <button class="text-button" id="copyButton" type="button">コピー</button>
+        </div>
+        <ol class="history" id="historyList"></ol>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
