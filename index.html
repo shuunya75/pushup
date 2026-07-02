@@ -23,9 +23,22 @@
         <div class="current" id="currentExercise">
           <span class="placeholder">まだ引いていません</span>
         </div>
-        <div class="draw-total">
-          <span>合計</span>
-          <output id="drawTotalOutput">0 回</output>
+        <div class="menu-status" id="menuStatus">
+          <p class="status-heading">あと5種目で完了</p>
+          <dl class="status-list">
+            <div>
+              <dt>残り</dt>
+              <dd>肩40、大60、中40、小40、零20</dd>
+            </div>
+            <div>
+              <dt>実施済み</dt>
+              <dd>なし</dd>
+            </div>
+            <div>
+              <dt>総回数</dt>
+              <dd>0回</dd>
+            </div>
+          </dl>
         </div>
         <p class="notice" id="drawNotice">サイコロを振る感覚で、次の種目を決めます。</p>
         <button class="primary-button" id="drawButton" type="button">次を引く</button>
@@ -53,17 +66,6 @@
           </span>
           <input id="halveWeight" type="checkbox" checked />
         </label>
-      </section>
-
-      <section class="progress-section" aria-label="今日の記録">
-        <div class="section-head">
-          <h2>今日の合計</h2>
-          <output id="totalOutput">0 / 200</output>
-        </div>
-        <div class="meter" aria-hidden="true">
-          <div id="meterFill"></div>
-        </div>
-        <div class="exercise-list" id="exerciseList"></div>
       </section>
 
       <section class="history-section" aria-label="順番ログ">

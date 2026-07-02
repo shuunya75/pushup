@@ -6,7 +6,6 @@ const exercises = [
   { id: "zero", name: "零", count: 20, color: "#5d4a8f" },
 ];
 
-const targetTotal = exercises.reduce((sum, exercise) => sum + exercise.count, 0);
 const todayKey = new Date().toLocaleDateString("sv-SE");
 const storageKey = `pushup-200:${todayKey}`;
 
@@ -21,10 +20,7 @@ const drawNotice = document.querySelector("#drawNotice");
 const excludeCompleted = document.querySelector("#excludeCompleted");
 const avoidRepeat = document.querySelector("#avoidRepeat");
 const halveWeight = document.querySelector("#halveWeight");
-const drawTotalOutput = document.querySelector("#drawTotalOutput");
-const totalOutput = document.querySelector("#totalOutput");
-const meterFill = document.querySelector("#meterFill");
-const exerciseList = document.querySelector("#exerciseList");
+const menuStatus = document.querySelector("#menuStatus");
 const historyList = document.querySelector("#historyList");
 
 todayLabel.textContent = new Intl.DateTimeFormat("ja-JP", {
@@ -84,7 +80,7 @@ function drawNext() {
   const candidate = pickCandidate();
 
   if (!candidate) {
-    drawNotice.textContent = "今日は200回完了です。お疲れさま。";
+    drawNotice.textContent = "基本メニュー完了です。お疲れさま。";
     render();
     return;
   }
@@ -164,9 +160,31 @@ function getCompletedTotal() {
   return state.history.reduce((sum, item) => sum + (item.count || 0), 0);
 }
 
+function getExerciseStats() {
+  return exercises.map((exercise) => {
+    const entries = state.history.filter((item) => item.id === exercise.id);
+    const hits = entries.length || state.hits[exercise.id] || 0;
+    const total = entries.reduce((sum, item) => sum + (item.count || exercise.count), 0);
+
+    return {
+      ...exercise,
+      hits,
+      total,
+      done: Boolean(state.completed[exercise.id]) || hits > 0,
+    };
+  });
+}
+
+function formatExercise(stat) {
+  return `${stat.name}${stat.count}${stat.hits > 1 ? `×${stat.hits}` : ""}`;
+}
+
 function render(latest = null) {
   const total = getCompletedTotal();
-  const remaining = exercises.filter((exercise) => !state.completed[exercise.id]).length;
+  const stats = getExerciseStats();
+  const remainingStats = stats.filter((stat) => !stat.done);
+  const completedStats = stats.filter((stat) => stat.done);
+  const remaining = remainingStats.length;
 
   if (latest) {
     currentExercise.innerHTML = `
@@ -182,33 +200,25 @@ function render(latest = null) {
     `;
   }
 
-  drawTotalOutput.textContent = `${total} 回`;
-  totalOutput.textContent = `${total} / ${targetTotal}`;
-  meterFill.style.width = `${Math.min(100, (total / targetTotal) * 100)}%`;
+  menuStatus.innerHTML = `
+    <p class="status-heading">${remaining === 0 ? "基本メニュー完了！" : `あと${remaining}種目で完了`}</p>
+    <dl class="status-list">
+      <div>
+        <dt>残り</dt>
+        <dd>${remainingStats.length === 0 ? "なし" : remainingStats.map(formatExercise).join("、")}</dd>
+      </div>
+      <div>
+        <dt>実施済み</dt>
+        <dd>${completedStats.length === 0 ? "なし" : completedStats.map(formatExercise).join("、")}</dd>
+      </div>
+      <div>
+        <dt>総回数</dt>
+        <dd>${total}回</dd>
+      </div>
+    </dl>
+  `;
   drawButton.disabled = remaining === 0;
   drawButton.textContent = remaining === 0 ? "完了" : "次を引く";
-
-  exerciseList.innerHTML = exercises
-    .map((exercise) => {
-      const done = state.completed[exercise.id];
-      const hits = state.hits[exercise.id] || 0;
-      const totalCount = state.history
-        .filter((item) => item.id === exercise.id)
-        .reduce((sum, item) => sum + (item.count || 0), 0);
-      return `
-        <article class="exercise-row ${done ? "done" : ""}">
-          <span class="badge" style="background:${done ? "var(--green)" : exercise.color}">
-            ${done ? "✓" : exercise.name}
-          </span>
-          <span>
-            <strong>${exercise.name}</strong>
-            <small>${hits}回出現</small>
-          </span>
-          <span class="row-count">${totalCount} / ${exercise.count}</span>
-        </article>
-      `;
-    })
-    .join("");
 
   historyList.innerHTML =
     state.history.length === 0
