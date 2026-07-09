@@ -18,8 +18,8 @@ const copyButton = document.querySelector("#copyButton");
 const manualButtons = document.querySelectorAll("[data-exercise-id]");
 const currentExercise = document.querySelector("#currentExercise");
 const drawNotice = document.querySelector("#drawNotice");
-const excludeCompleted = document.querySelector("#excludeCompleted");
-const halveWeight = document.querySelector("#halveWeight");
+const appearedWeight = document.querySelector("#appearedWeight");
+const weightHelp = document.querySelector("#weightHelp");
 const menuStatus = document.querySelector("#menuStatus");
 const historyList = document.querySelector("#historyList");
 
@@ -27,8 +27,7 @@ todayLabel.textContent = new Intl.DateTimeFormat("ja-JP", {
   dateStyle: "full",
 }).format(new Date());
 
-excludeCompleted.checked = state.settings.excludeCompleted;
-halveWeight.checked = state.settings.halveWeight;
+appearedWeight.value = String(state.settings.appearedWeight);
 
 drawButton.addEventListener("click", drawNext);
 copyButton.addEventListener("click", copySummary);
@@ -43,16 +42,15 @@ manualButtons.forEach((button) => {
   });
 });
 
-[excludeCompleted, halveWeight].forEach((input) => {
-  input.addEventListener("change", () => {
-    state.settings = {
-      excludeCompleted: excludeCompleted.checked,
-      avoidRepeat: true,
-      halveWeight: halveWeight.checked,
-    };
-    saveState();
-    render();
-  });
+appearedWeight.addEventListener("change", () => {
+  if (state.history.length > 0) {
+    appearedWeight.value = String(state.settings.appearedWeight);
+    return;
+  }
+
+  state.settings.appearedWeight = Number(appearedWeight.value);
+  saveState();
+  render();
 });
 
 render();
@@ -68,9 +66,8 @@ function loadState() {
         history: Array.isArray(parsed.history) ? parsed.history : [],
         lastDrawnId: parsed.lastDrawnId || null,
         settings: {
-          excludeCompleted: parsed.settings?.excludeCompleted ?? true,
           avoidRepeat: true,
-          halveWeight: parsed.settings?.halveWeight ?? true,
+          appearedWeight: getValidAppearedWeight(parsed.settings?.appearedWeight),
         },
       };
     } catch {
@@ -84,9 +81,8 @@ function loadState() {
     history: [],
     lastDrawnId: null,
     settings: {
-      excludeCompleted: true,
       avoidRepeat: true,
-      halveWeight: true,
+      appearedWeight: 0,
     },
   };
 }
@@ -151,10 +147,8 @@ function pickCandidate() {
   if (allDone) return null;
 
   let candidates = exercises.filter((exercise) => {
-    if (state.settings.excludeCompleted && state.completed[exercise.id]) return false;
     if (exercise.id === state.lastDrawnId) {
       const alternatives = exercises.filter((item) => {
-        if (state.settings.excludeCompleted && state.completed[item.id]) return false;
         return item.id !== state.lastDrawnId;
       });
       return alternatives.length === 0;
@@ -162,20 +156,20 @@ function pickCandidate() {
     return true;
   });
 
-  if (candidates.length === 0) {
-    candidates = exercises.filter((exercise) => !state.completed[exercise.id]);
-  }
-
   const weighted = candidates.map((exercise) => {
     const hits = state.hits[exercise.id] || 0;
-    const weight = state.settings.halveWeight ? 1 / Math.pow(2, hits) : 1;
+    const weight = hits === 0 ? 1 : Math.pow(state.settings.appearedWeight, hits);
     return { exercise, weight };
   });
 
   const totalWeight = weighted.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight === 0) return null;
+
   let roll = Math.random() * totalWeight;
 
   for (const item of weighted) {
+    if (item.weight <= 0) continue;
+
     roll -= item.weight;
     if (roll <= 0) return item.exercise;
   }
@@ -212,6 +206,10 @@ function render(latest = null) {
   const remainingStats = stats.filter((stat) => !stat.done);
   const completedStats = stats.filter((stat) => stat.done);
   const remaining = remainingStats.length;
+  const hasHistory = state.history.length > 0;
+
+  appearedWeight.disabled = hasHistory;
+  weightHelp.textContent = hasHistory ? "記録中は変更できません。" : "未出現は1.0、出た種目は選んだ倍率で下がります。";
 
   if (latest) {
     currentExercise.innerHTML = `
@@ -299,4 +297,10 @@ function resetToday() {
 function getHitNumberAt(historyIndex) {
   const item = state.history[historyIndex];
   return state.history.slice(0, historyIndex + 1).filter((entry) => entry.id === item.id).length;
+}
+
+function getValidAppearedWeight(value) {
+  const weights = [0, 0.1, 0.3, 0.5, 0.6, 0.8, 1];
+  const number = Number(value);
+  return weights.includes(number) ? number : 0;
 }

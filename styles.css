@@ -303,6 +303,24 @@ h2 {
   line-height: 1.4;
 }
 
+.weight-setting select {
+  min-width: 104px;
+  min-height: 44px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--panel);
+  font: inherit;
+  font-weight: 900;
+}
+
+.weight-setting select:disabled {
+  color: var(--muted);
+  background: rgba(216, 207, 192, 0.45);
+  cursor: not-allowed;
+}
+
 input[type="checkbox"] {
   position: relative;
   width: 52px;

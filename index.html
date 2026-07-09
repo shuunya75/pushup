@@ -76,19 +76,20 @@
       </section>
 
       <section class="settings" aria-label="抽選設定">
-        <label class="setting-row">
+        <label class="setting-row weight-setting">
           <span>
-            <strong>出た種目を候補から外す</strong>
-            <small>オンにすると同じ種目は再登場しません。</small>
+            <strong>出た種目の重み</strong>
+            <small id="weightHelp">記録中は変更できません。</small>
           </span>
-          <input id="excludeCompleted" type="checkbox" checked />
-        </label>
-        <label class="setting-row">
-          <span>
-            <strong>一度出た目の確率を半分にする</strong>
-            <small>候補から外さない時の偏りを少し整えます。</small>
-          </span>
-          <input id="halveWeight" type="checkbox" checked />
+          <select id="appearedWeight" aria-describedby="weightHelp">
+            <option value="0">0%</option>
+            <option value="0.1">10%</option>
+            <option value="0.3">30%</option>
+            <option value="0.5">50%</option>
+            <option value="0.6">60%</option>
+            <option value="0.8">80%</option>
+            <option value="1">100%</option>
+          </select>
         </label>
       </section>
 
