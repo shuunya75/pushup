@@ -14,7 +14,10 @@
           <h1>腕立て200</h1>
         </div>
         <button class="icon-button" id="resetButton" type="button" aria-label="今日の記録をリセット">
-          ↻
+          <svg class="reset-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3v5h5" />
+            <path d="M3.4 12a8.6 8.6 0 1 0 2.5-6.1L3 8" />
+          </svg>
         </button>
       </header>
 
@@ -42,6 +45,34 @@
         </div>
         <p class="notice" id="drawNotice">サイコロを振る感覚で、次の種目を決めます。</p>
         <button class="primary-button" id="drawButton" type="button">次を引く</button>
+      </section>
+
+      <section class="manual-section" aria-label="手動で種目を選ぶ">
+        <div class="section-head">
+          <h2>手動で選ぶ</h2>
+        </div>
+        <div class="manual-grid">
+          <button class="manual-button manual-shoulder" type="button" data-exercise-id="shoulder">
+            <span>肩</span>
+            <strong>40回</strong>
+          </button>
+          <button class="manual-button manual-large" type="button" data-exercise-id="large">
+            <span>大</span>
+            <strong>60回</strong>
+          </button>
+          <button class="manual-button manual-middle" type="button" data-exercise-id="middle">
+            <span>中</span>
+            <strong>40回</strong>
+          </button>
+          <button class="manual-button manual-small" type="button" data-exercise-id="small">
+            <span>小</span>
+            <strong>40回</strong>
+          </button>
+          <button class="manual-button manual-zero" type="button" data-exercise-id="zero">
+            <span>零</span>
+            <strong>20回</strong>
+          </button>
+        </div>
       </section>
 
       <section class="settings" aria-label="抽選設定">

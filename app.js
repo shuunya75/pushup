@@ -15,6 +15,7 @@ const todayLabel = document.querySelector("#todayLabel");
 const resetButton = document.querySelector("#resetButton");
 const drawButton = document.querySelector("#drawButton");
 const copyButton = document.querySelector("#copyButton");
+const manualButtons = document.querySelectorAll("[data-exercise-id]");
 const currentExercise = document.querySelector("#currentExercise");
 const drawNotice = document.querySelector("#drawNotice");
 const excludeCompleted = document.querySelector("#excludeCompleted");
@@ -34,6 +35,15 @@ halveWeight.checked = state.settings.halveWeight;
 drawButton.addEventListener("click", drawNext);
 copyButton.addEventListener("click", copySummary);
 resetButton.addEventListener("click", resetToday);
+
+manualButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const exercise = exercises.find((item) => item.id === button.dataset.exerciseId);
+    if (!exercise) return;
+
+    recordExercise(exercise, "manual");
+  });
+});
 
 [excludeCompleted, avoidRepeat, halveWeight].forEach((input) => {
   input.addEventListener("change", () => {
@@ -85,38 +95,46 @@ function drawNext() {
     return;
   }
 
-  const alreadyCompleted = Boolean(state.completed[candidate.id]);
-  const hitNumber = (state.hits[candidate.id] || 0) + 1;
-  state.hits[candidate.id] = hitNumber;
-  state.lastDrawnId = candidate.id;
+  recordExercise(candidate, "random");
+}
+
+function recordExercise(exercise, source) {
+  const alreadyCompleted = Boolean(state.completed[exercise.id]);
+  const hitNumber = (state.hits[exercise.id] || 0) + 1;
+  state.hits[exercise.id] = hitNumber;
+  state.lastDrawnId = exercise.id;
 
   if (!alreadyCompleted) {
-    state.completed[candidate.id] = true;
+    state.completed[exercise.id] = true;
     state.history.push({
-      id: candidate.id,
-      name: candidate.name,
-      count: candidate.count,
+      id: exercise.id,
+      name: exercise.name,
+      count: exercise.count,
       hitNumber,
       counted: true,
+      source,
       repeated: false,
       at: new Date().toISOString(),
     });
-    drawNotice.textContent = `${candidate.name}${candidate.count}回を記録しました。`;
+    drawNotice.textContent =
+      source === "manual" ? `${exercise.name}${exercise.count}回を手動で記録しました。` : `${exercise.name}${exercise.count}回を記録しました。`;
   } else {
     state.history.push({
-      id: candidate.id,
-      name: candidate.name,
-      count: candidate.count,
+      id: exercise.id,
+      name: exercise.name,
+      count: exercise.count,
       hitNumber,
       counted: true,
+      source,
       repeated: true,
       at: new Date().toISOString(),
     });
-    drawNotice.textContent = `${candidate.name}${candidate.count}回を追加しました。`;
+    drawNotice.textContent =
+      source === "manual" ? `${exercise.name}${exercise.count}回を手動で追加しました。` : `${exercise.name}${exercise.count}回を追加しました。`;
   }
 
   saveState();
-  render(candidate);
+  render(exercise);
 }
 
 function pickCandidate() {
@@ -194,10 +212,12 @@ function render(latest = null) {
   } else if (state.history.length > 0) {
     const last = state.history[state.history.length - 1];
     const exercise = exercises.find((item) => item.id === last.id);
-    currentExercise.innerHTML = `
-      <span class="current-name">${exercise.name}</span>
-      <span class="current-count">${exercise.count}回</span>
-    `;
+    if (exercise) {
+      currentExercise.innerHTML = `
+        <span class="current-name">${exercise.name}</span>
+        <span class="current-count">${exercise.count}回</span>
+      `;
+    }
   }
 
   menuStatus.innerHTML = `
