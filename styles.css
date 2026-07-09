@@ -47,7 +47,7 @@ input {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 0 18px;
+  padding: 8px 0 6px;
 }
 
 .date,
@@ -69,6 +69,17 @@ h1 {
   margin-bottom: 0;
   font-size: clamp(2rem, 12vw, 4.4rem);
   line-height: 0.95;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 h2 {
