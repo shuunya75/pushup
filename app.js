@@ -19,7 +19,6 @@ const manualButtons = document.querySelectorAll("[data-exercise-id]");
 const currentExercise = document.querySelector("#currentExercise");
 const drawNotice = document.querySelector("#drawNotice");
 const excludeCompleted = document.querySelector("#excludeCompleted");
-const avoidRepeat = document.querySelector("#avoidRepeat");
 const halveWeight = document.querySelector("#halveWeight");
 const menuStatus = document.querySelector("#menuStatus");
 const historyList = document.querySelector("#historyList");
@@ -29,7 +28,6 @@ todayLabel.textContent = new Intl.DateTimeFormat("ja-JP", {
 }).format(new Date());
 
 excludeCompleted.checked = state.settings.excludeCompleted;
-avoidRepeat.checked = state.settings.avoidRepeat;
 halveWeight.checked = state.settings.halveWeight;
 
 drawButton.addEventListener("click", drawNext);
@@ -45,11 +43,11 @@ manualButtons.forEach((button) => {
   });
 });
 
-[excludeCompleted, avoidRepeat, halveWeight].forEach((input) => {
+[excludeCompleted, halveWeight].forEach((input) => {
   input.addEventListener("change", () => {
     state.settings = {
       excludeCompleted: excludeCompleted.checked,
-      avoidRepeat: avoidRepeat.checked,
+      avoidRepeat: true,
       halveWeight: halveWeight.checked,
     };
     saveState();
@@ -63,7 +61,18 @@ function loadState() {
   const saved = localStorage.getItem(storageKey);
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      return {
+        completed: parsed.completed || {},
+        hits: parsed.hits || {},
+        history: Array.isArray(parsed.history) ? parsed.history : [],
+        lastDrawnId: parsed.lastDrawnId || null,
+        settings: {
+          excludeCompleted: parsed.settings?.excludeCompleted ?? true,
+          avoidRepeat: true,
+          halveWeight: parsed.settings?.halveWeight ?? true,
+        },
+      };
     } catch {
       localStorage.removeItem(storageKey);
     }
@@ -143,7 +152,7 @@ function pickCandidate() {
 
   let candidates = exercises.filter((exercise) => {
     if (state.settings.excludeCompleted && state.completed[exercise.id]) return false;
-    if (state.settings.avoidRepeat && exercise.id === state.lastDrawnId) {
+    if (exercise.id === state.lastDrawnId) {
       const alternatives = exercises.filter((item) => {
         if (state.settings.excludeCompleted && state.completed[item.id]) return false;
         return item.id !== state.lastDrawnId;
