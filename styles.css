@@ -42,12 +42,11 @@ input {
   padding: 20px;
 }
 
-.topbar {
+.panel-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 8px 0 6px;
 }
 
 .date,
@@ -136,6 +135,7 @@ h2 {
 }
 
 .draw-panel {
+  margin-top: 0;
   padding: 22px;
 }
 
